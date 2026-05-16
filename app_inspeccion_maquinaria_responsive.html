@@ -1,0 +1,489 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{width:100%;max-width:100%;padding:0 0 2rem}
+.topbar{background:#0f3460;padding:16px 20px 12px;border-radius:0 0 12px 12px}
+.topbar h1{color:#fff;font-size:clamp(14px,2vw,17px);font-weight:500;margin-bottom:2px}
+.topbar p{color:#8ab4d4;font-size:clamp(11px,1.5vw,13px)}
+.progress-bar{height:4px;background:#1a4a7a;border-radius:2px;margin-top:10px;overflow:hidden}
+.progress-fill{height:100%;background:#e94560;border-radius:2px;transition:width .4s}
+.step-nav{display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.step-nav::-webkit-scrollbar{display:none}
+.step-btn{white-space:nowrap;font-size:clamp(11px,1.3vw,13px);padding:7px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;flex-shrink:0}
+.step-btn.active{background:#0f3460;color:#fff;border-color:#0f3460}
+.step-btn.done{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
+.section{display:none;padding:14px 16px 0}
+.section.visible{display:block}
+.sec-header{font-size:clamp(13px,1.6vw,15px);font-weight:500;color:var(--color-text-primary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sec-header i{font-size:clamp(16px,2vw,20px);color:#0f3460}
+.hint{font-size:clamp(11px,1.4vw,13px);color:var(--color-text-secondary);background:var(--color-background-secondary);padding:10px 12px;margin-bottom:12px;border-left:3px solid #0f3460}
+.field{margin-bottom:12px}
+.field label{font-size:clamp(11px,1.3vw,12px);color:var(--color-text-secondary);display:block;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 14px;font-size:clamp(13px,1.5vw,15px);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.field textarea{min-height:80px;resize:vertical}
+.row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.opt{font-size:clamp(12px,1.4vw,14px);padding:7px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.opt.sel{background:#0f3460;color:#fff;border-color:#0f3460}
+.opt.warn.sel{background:#c0392b;color:#fff;border-color:#c0392b}
+.opt.ok.sel{background:#2d9e6b;color:#fff;border-color:#2d9e6b}
+.opt.med.sel{background:#e07b39;color:#fff;border-color:#e07b39}
+.item-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px}
+.item-name{font-size:clamp(12px,1.5vw,14px);font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.item-hint{font-size:clamp(11px,1.3vw,12px);color:var(--color-text-secondary);margin-bottom:8px;font-style:italic}
+.stars{display:flex;gap:8px;flex-wrap:wrap}
+.star{min-width:44px;height:44px;padding:0 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:clamp(12px,1.5vw,14px);font-weight:500;color:var(--color-text-secondary)}
+.star.s1.on,.star.s2.on{background:#c0392b;border-color:#c0392b;color:#fff}
+.star.s3.on{background:#e07b39;border-color:#e07b39;color:#fff}
+.star.s4.on,.star.s5.on{background:#2d9e6b;border-color:#2d9e6b;color:#fff}
+.star-label{font-size:clamp(11px,1.3vw,12px);color:var(--color-text-tertiary);margin-top:6px;min-height:16px}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.score-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px;text-align:center}
+.score-card .num{font-size:clamp(22px,3vw,30px);font-weight:500;color:var(--color-text-primary)}
+.score-card .lbl{font-size:clamp(11px,1.3vw,13px);color:var(--color-text-secondary)}
+.verdict{padding:14px 16px;border-radius:var(--border-radius-lg);margin:12px 0;text-align:center;font-size:clamp(13px,1.6vw,15px);font-weight:500}
+.v-buy{background:var(--color-background-success);color:var(--color-text-success)}
+.v-neg{background:var(--color-background-warning);color:var(--color-text-warning)}
+.v-low{background:#fff3e0;color:#854F0B}
+.v-no{background:var(--color-background-danger);color:var(--color-text-danger)}
+.cost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+.cost-total{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cost-total span{font-size:clamp(13px,1.5vw,15px);font-weight:500}
+.cost-total .amount{font-size:clamp(16px,2vw,22px);font-weight:500;color:#0f3460}
+.nav-btns{display:flex;gap:10px;padding:14px 16px 0}
+.nav-btn{flex:1;padding:13px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:clamp(13px,1.5vw,15px);cursor:pointer;font-family:var(--font-sans)}
+.nav-btn.primary{background:#0f3460;color:#fff;border-color:#0f3460}
+.nav-btn.accent{background:#e94560;color:#fff;border-color:#e94560;width:100%;margin-top:14px;padding:15px}
+.tip-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px;display:flex;gap:12px}
+.tip-num{width:32px;height:32px;border-radius:50%;background:#e94560;color:#fff;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tip-body .tip-t{font-size:clamp(12px,1.4vw,14px);font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.tip-body .tip-d{font-size:clamp(11px,1.3vw,13px);color:var(--color-text-secondary)}
+.check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.chk-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary)}
+.chk-item.checked{background:var(--color-background-success);border-color:var(--color-border-success)}
+.chk-item .ci-box{width:20px;height:20px;border-radius:4px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chk-item.checked .ci-box{background:var(--color-text-success);border-color:var(--color-text-success)}
+.chk-item.checked .ci-box::after{content:'✓';color:#fff;font-size:12px;font-weight:500}
+.chk-item .ci-lbl{font-size:clamp(11px,1.3vw,13px);color:var(--color-text-secondary)}
+.chk-item.checked .ci-lbl{color:var(--color-text-success)}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:16px 0}
+.precio-alert{padding:10px 14px;border-radius:var(--border-radius-md);margin-bottom:12px;font-size:clamp(12px,1.4vw,14px);font-weight:500}
+.final-calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+</style>
+
+<h2 class="sr-only">Aplicación de inspección y valorización de maquinaria minera</h2>
+
+<div class="app">
+  <div class="topbar">
+    <h1><i class="ti ti-tractor" aria-hidden="true"></i> Ficha de inspección — Maquinaria</h1>
+    <p id="step-label">Paso 1 de 9 — Datos generales</p>
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:11%"></div></div>
+  </div>
+
+  <div class="step-nav" id="step-nav"></div>
+
+  <!-- PASO 1: DATOS GENERALES -->
+  <div class="section visible" id="sec-0">
+    <div class="sec-header"><i class="ti ti-file-description" aria-hidden="true"></i> Datos generales</div>
+    <div class="hint">Rellena con la información básica. Pide la documentación al vendedor antes de empezar.</div>
+    <div class="row2">
+      <div class="field"><label>Fecha de inspección</label><input type="date" id="g_fecha"></div>
+      <div class="field"><label>Inspector</label><input type="text" id="g_inspector" placeholder="Tu nombre"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Empresa / Vendedor</label><input type="text" id="g_vendedor" placeholder="Nombre del vendedor o empresa"></div>
+      <div class="field"><label>Lugar de inspección</label><input type="text" id="g_lugar" placeholder="Mina, depósito, ciudad..."></div>
+    </div>
+    <div class="field"><label>Tipo de equipo</label>
+      <div class="opts" id="tipo_opts">
+        <span class="opt" onclick="tog(this,'tipo')">Excavadora</span>
+        <span class="opt" onclick="tog(this,'tipo')">Cargador</span>
+        <span class="opt" onclick="tog(this,'tipo')">Bulldozer</span>
+        <span class="opt" onclick="tog(this,'tipo')">Volquete</span>
+        <span class="opt" onclick="tog(this,'tipo')">Motoniveladora</span>
+        <span class="opt" onclick="tog(this,'tipo')">Motor / Power Unit</span>
+        <span class="opt" onclick="tog(this,'tipo')">Otro</span>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>Marca</label><input type="text" id="g_marca" placeholder="CAT, Komatsu, Volvo..."></div>
+      <div class="field"><label>Modelo</label><input type="text" id="g_modelo" placeholder="Ej: 336, PC200..."></div>
+      <div class="field"><label>Año de fabricación</label><input type="number" id="g_anio" placeholder="2014" min="1980" max="2025"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Horómetro (horas trabajadas)</label><input type="number" id="g_horas" placeholder="12500"></div>
+      <div class="field"><label>N° de Serie / VIN</label><input type="text" id="g_serie" placeholder="Serie del chasis"></div>
+    </div>
+    <div class="field"><label>Procedencia</label>
+      <div class="opts">
+        <span class="opt ok" onclick="tog(this,'proc')">Japón</span>
+        <span class="opt ok" onclick="tog(this,'proc')">EE.UU.</span>
+        <span class="opt ok" onclick="tog(this,'proc')">Europa</span>
+        <span class="opt med" onclick="tog(this,'proc')">Chile</span>
+        <span class="opt med" onclick="tog(this,'proc')">Perú</span>
+        <span class="opt warn" onclick="tog(this,'proc')">China</span>
+        <span class="opt" onclick="tog(this,'proc')">Otro</span>
+      </div>
+    </div>
+    <div class="field"><label>Estado operativo actual</label>
+      <div class="opts">
+        <span class="opt ok" onclick="tog(this,'oper')">Arranca y trabaja</span>
+        <span class="opt med" onclick="tog(this,'oper')">Arranca pero no trabaja</span>
+        <span class="opt warn" onclick="tog(this,'oper')">No arranca</span>
+        <span class="opt warn" onclick="tog(this,'oper')">Desarmado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 2: COMERCIAL -->
+  <div class="section" id="sec-1">
+    <div class="sec-header"><i class="ti ti-cash" aria-hidden="true"></i> Información comercial</div>
+    <div class="hint">Verifica SIEMPRE que la máquina sea libre de gravámenes antes de pagar. Pregunta por documentos originales.</div>
+    <div class="row2">
+      <div class="field"><label>Precio pedido (USD)</label><input type="number" id="c_pedido" placeholder="0" oninput="calcPrecio()"></div>
+      <div class="field"><label>Precio de mercado referencial (USD)</label><input type="number" id="c_mercado" placeholder="0" oninput="calcPrecio()"></div>
+    </div>
+    <div id="precio-alerta"></div>
+    <div class="field"><label>Condición de venta</label>
+      <div class="opts">
+        <span class="opt warn" onclick="tog(this,'venta')">Tal cual — sin garantía</span>
+        <span class="opt med" onclick="tog(this,'venta')">Probado</span>
+        <span class="opt ok" onclick="tog(this,'venta')">Con garantía</span>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>¿Incluye IGV?</label>
+        <div class="opts"><span class="opt" onclick="tog(this,'igv')">Sí</span><span class="opt" onclick="tog(this,'igv')">No</span></div>
+      </div>
+      <div class="field"><label>¿Incluye transporte?</label>
+        <div class="opts"><span class="opt" onclick="tog(this,'transp')">Sí</span><span class="opt" onclick="tog(this,'transp')">No</span></div>
+      </div>
+    </div>
+    <div class="field"><label>Documentación disponible (selecciona todas las que aplican)</label>
+      <div class="opts">
+        <span class="opt ok" onclick="togM(this)">Factura original</span>
+        <span class="opt ok" onclick="togM(this)">Doc. de importación</span>
+        <span class="opt ok" onclick="togM(this)">Tarjeta de propiedad</span>
+        <span class="opt ok" onclick="togM(this)">Historial mantenimiento</span>
+        <span class="opt ok" onclick="togM(this)">Manual de operación</span>
+        <span class="opt warn" onclick="togM(this)">Ninguna</span>
+      </div>
+    </div>
+    <div class="field"><label>¿Libre de gravámenes?</label>
+      <div class="opts">
+        <span class="opt ok" onclick="tog(this,'grav')">Sí — verificado</span>
+        <span class="opt warn" onclick="tog(this,'grav')">Con deuda pendiente</span>
+        <span class="opt med" onclick="tog(this,'grav')">No verificado aún</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 3: VISUAL -->
+  <div class="section" id="sec-2">
+    <div class="sec-header"><i class="ti ti-eye" aria-hidden="true"></i> Evaluación visual general</div>
+    <div class="hint">Camina alrededor de la máquina. Agáchate. Mira el suelo debajo. Busca manchas de aceite. No necesitas herramientas para esto.</div>
+    <div id="visual-items"></div>
+  </div>
+
+  <!-- PASO 4: MOTOR -->
+  <div class="section" id="sec-3">
+    <div class="sec-header"><i class="ti ti-engine" aria-hidden="true"></i> Motor — el corazón de la máquina</div>
+    <div class="hint">Pide que arranquen EN FRÍO si es posible. Observa el humo del escape. Escucha si hay golpes o ruidos raros.</div>
+    <div id="motor-items"></div>
+  </div>
+
+  <!-- PASO 5: HIDRÁULICO -->
+  <div class="section" id="sec-4">
+    <div class="sec-header"><i class="ti ti-refresh" aria-hidden="true"></i> Hidráulico y transmisión</div>
+    <div class="hint">Mueve todos los implementos varias veces. Observa la velocidad y si hay fugas. En transmisión: pide que manejen la máquina.</div>
+    <div id="hidro-items"></div>
+  </div>
+
+  <!-- PASO 6: TREN -->
+  <div class="section" id="sec-5">
+    <div class="sec-header"><i class="ti ti-settings" aria-hidden="true"></i> Tren de rodaje / llantas</div>
+    <div class="hint">Muy caro de reparar. Si está muy desgastado, negocia agresivo o descarta. En orugas: si la cadena cuelga mucho, está al límite.</div>
+    <div id="rodaje-items"></div>
+  </div>
+
+  <!-- PASO 7: ELÉCTRICO -->
+  <div class="section" id="sec-6">
+    <div class="sec-header"><i class="ti ti-bolt" aria-hidden="true"></i> Sistema eléctrico y prueba operativa</div>
+    <div class="hint">El ECM (módulo electrónico) es carísimo — verifica que esté presente. Pide mínimo 15-20 min de operación continua.</div>
+    <div id="elec-items"></div>
+    <div class="divider"></div>
+    <div class="sec-header" style="margin-bottom:6px"><i class="ti ti-tractor" aria-hidden="true"></i> Prueba operativa</div>
+    <div id="prueba-items"></div>
+  </div>
+
+  <!-- PASO 8: COMPONENTES + COSTOS -->
+  <div class="section" id="sec-7">
+    <div class="sec-header"><i class="ti ti-list-check" aria-hidden="true"></i> Componentes presentes</div>
+    <div class="hint">Verifica físicamente que estén. Algunos vendedores retiran piezas valiosas antes de mostrar la máquina.</div>
+    <div class="check-grid" id="comp-checks"></div>
+    <div class="divider"></div>
+    <div class="sec-header" style="margin-bottom:8px"><i class="ti ti-tool" aria-hidden="true"></i> Costo estimado de reparación (USD)</div>
+    <div class="hint">Si no sabes el costo exacto, escribe 0 y cotiza después. Incluye repuestos + mano de obra.</div>
+    <div class="cost-grid">
+      <div class="field"><label>Motor / overhaul</label><input type="number" id="r_motor" placeholder="0" oninput="calcCosto()"></div>
+      <div class="field"><label>Sistema hidráulico</label><input type="number" id="r_hidro" placeholder="0" oninput="calcCosto()"></div>
+      <div class="field"><label>Transmisión / mandos finales</label><input type="number" id="r_trans" placeholder="0" oninput="calcCosto()"></div>
+      <div class="field"><label>Sistema eléctrico</label><input type="number" id="r_elec" placeholder="0" oninput="calcCosto()"></div>
+      <div class="field"><label>Tren de rodaje / llantas</label><input type="number" id="r_rodaje" placeholder="0" oninput="calcCosto()"></div>
+      <div class="field"><label>Transporte / flete</label><input type="number" id="r_flete" placeholder="0" oninput="calcCosto()"></div>
+    </div>
+    <div class="cost-total"><span>Total inversión estimada</span><span class="amount" id="costo-total">USD 0</span></div>
+  </div>
+
+  <!-- PASO 9: RESULTADO -->
+  <div class="section" id="sec-8">
+    <div class="sec-header"><i class="ti ti-chart-bar" aria-hidden="true"></i> Resultado y recomendación</div>
+    <div class="score-grid">
+      <div class="score-card"><div class="num" id="res-tecnico">—</div><div class="lbl">Estado técnico promedio</div></div>
+      <div class="score-card"><div class="num" id="res-porc">—</div><div class="lbl">% condición general</div></div>
+    </div>
+    <div id="res-verdict" class="verdict" style="display:none"></div>
+    <div class="divider"></div>
+    <div class="sec-header" style="margin-bottom:8px"><i class="ti ti-calculator" aria-hidden="true"></i> Análisis de precio</div>
+    <div class="row3">
+      <div class="field"><label>Precio pedido (USD)</label><input type="number" id="rv_pedido" placeholder="0" oninput="calcFinal()"></div>
+      <div class="field"><label>Valor de mercado (USD)</label><input type="number" id="rv_mercado" placeholder="0" oninput="calcFinal()"></div>
+      <div class="field"><label>Inversión estimada (USD)</label><input type="number" id="rv_inversion" placeholder="0" oninput="calcFinal()"></div>
+    </div>
+    <div id="final-calc" style="display:none">
+      <div class="final-calc-grid">
+        <div class="score-card"><div class="num" id="fc-costo" style="font-size:clamp(15px,2vw,20px)">—</div><div class="lbl">Costo total real</div></div>
+        <div class="score-card"><div class="num" id="fc-oferta" style="font-size:clamp(15px,2vw,20px)">—</div><div class="lbl">Oferta máxima sugerida</div></div>
+        <div class="score-card"><div class="num" id="fc-margen" style="font-size:clamp(15px,2vw,20px)">—</div><div class="lbl">Margen potencial</div></div>
+      </div>
+    </div>
+    <div class="field"><label>Observaciones y puntos de negociación</label>
+      <textarea id="obs_final" placeholder="¿Qué notaste más importante? ¿Qué debes negociar?"></textarea>
+    </div>
+    <button class="nav-btn accent" onclick="enviarAnalisis()"><i class="ti ti-robot" aria-hidden="true"></i> Pedir análisis completo con IA ↗</button>
+    <div class="divider"></div>
+    <div class="sec-header" style="margin-bottom:10px"><i class="ti ti-bulb" aria-hidden="true"></i> Consejos clave de compra</div>
+    <div class="tip-card"><div class="tip-num">1</div><div class="tip-body"><div class="tip-t">Nunca te enamores de la pintura</div><div class="tip-d">Pintura nueva puede ocultar fugas, soldaduras o fisuras. La pintura no mueve la máquina. El motor sí.</div></div></div>
+    <div class="tip-card"><div class="tip-num">2</div><div class="tip-body"><div class="tip-t">El blow-by dice más que el vendedor</div><div class="tip-d">Abre la tapa de aceite con el motor caliente. Si bota mucho humo o escupe aceite: overhaul pronto.</div></div></div>
+    <div class="tip-card"><div class="tip-num">3</div><div class="tip-body"><div class="tip-t">Horas "bonitas" generan sospecha</div><div class="tip-d">8 años, pintura gastada, asiento roto, pero "6,000 horas"... El desgaste visual no miente.</div></div></div>
+    <div class="tip-card"><div class="tip-num">4</div><div class="tip-body"><div class="tip-t">Lo más caro no siempre es el motor</div><div class="tip-d">Transmisión, hidráulico, mandos finales y ECM pueden salir más caros. Cotiza siempre antes de comprar.</div></div></div>
+    <div class="tip-card"><div class="tip-num">5</div><div class="tip-body"><div class="tip-t">Negocia el tren de rodaje</div><div class="tip-d">Si las orugas o llantas están muertas, negocia muy agresivo. Son decenas de miles de dólares.</div></div></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="nav-btn" id="btn-prev" onclick="goStep(-1)" style="display:none"><i class="ti ti-arrow-left" aria-hidden="true"></i> Anterior</button>
+    <button class="nav-btn primary" id="btn-next" onclick="goStep(1)">Siguiente <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+  </div>
+</div>
+
+<script>
+const stepNames=["Datos generales","Comercial","Visual","Motor","Hidráulico","Tren rodaje","Eléctrico","Componentes","Resultado"];
+let cur=0;
+const TOTAL=9;
+const starLabels=["","Muy malo","Malo","Regular","Bueno","Excelente"];
+
+function buildOpt(id,label,opts,hint){
+  const oh=opts.map(o=>{
+    const c=o.endsWith("⚠")?"warn":(o.startsWith("Bueno")||o.startsWith("Sin")||o.startsWith("Normal")||o.startsWith("No hay")||o.startsWith("Ninguno")||o.startsWith("Presente")||o.startsWith("Libre")||o.startsWith("Completo")||o.startsWith("En buen"))?"ok":"med";
+    return `<span class="opt ${c}" onclick="tog(this,'${id}')">${o}</span>`;
+  }).join("");
+  return `<div class="item-card"><div class="item-name">${label}</div>${hint?`<div class="item-hint">${hint}</div>`:""}<div class="opts">${oh}</div></div>`;
+}
+
+document.getElementById("sec-2").querySelector("#visual-items").innerHTML=[
+  buildOpt("v_pintura","Pintura general",["Buena — original","Regular / desgastada","Repintada recientemente ⚠"],"Pintura nueva puede esconder fugas o fisuras. Desconfía."),
+  buildOpt("v_golpes","Golpes o daños estructurales",["No hay","Leves / cosméticos","Graves en estructura ⚠"]),
+  buildOpt("v_aceite","Fugas de aceite (manchas en suelo o piezas)",["No hay","Goteo leve","Fuga moderada","Fuga grave ⚠"]),
+  buildOpt("v_hidro","Fugas hidráulicas visibles",["No hay","Leve","Grave ⚠"]),
+  buildOpt("v_sold","Soldaduras visibles / reparaciones",["No hay","Algunas menores","Muchas soldaduras ⚠"],"Muchas soldaduras pueden ocultar fisuras estructurales."),
+  buildOpt("v_chasis","Chasis / bastidor",["Bueno — sin daños","Regular","Con fisuras o doblado ⚠"]),
+  buildOpt("v_oxid","Corrosión / oxidación",["Baja / superficial","Media","Alta — puede ser estructural ⚠"]),
+  buildOpt("v_cables","Cableado eléctrico visible",["Completo y ordenado","Algunos cortes menores","Manipulado o cortado ⚠"]),
+  buildOpt("v_cabina","Estado de la cabina",["Buena / completa","Regular — le faltan cosas","Destruida ⚠"]),
+].join("");
+
+document.getElementById("sec-3").querySelector("#motor-items").innerHTML=[
+  buildOpt("m_arranca","¿La máquina arranca?",["Sí, sin problema","Con dificultad","No arranca ⚠"]),
+  buildOpt("m_frio","Arranque en frío",["Bueno","Regular / tarda bastante","Malo ⚠"],"Si puedes, llega antes que el vendedor prenda la máquina."),
+  buildOpt("m_hnegro","Humo negro del escape",["Ninguno","Poco (normal al arrancar)","Mucho ⚠ = inyección o turbo con problemas"],"Mira el tubo de escape apenas arranca."),
+  buildOpt("m_hazul","Humo azul del escape",["Ninguno","Algo ⚠ = quema aceite","Mucho ⚠⚠ = motor muy desgastado"]),
+  buildOpt("m_hblanc","Humo blanco del escape",["Ninguno / vapor normal","Algo ⚠ = posible fuga de refrigerante","Mucho ⚠⚠"]),
+  buildOpt("m_ruidos","Ruidos anormales (golpes, traqueteos)",["No hay","Leves","Fuertes ⚠⚠"],"Escucha con el motor en ralentí y a mayor RPM."),
+  buildOpt("m_blowby","Blow-by: abre la tapa de aceite con motor caliente",["Humo leve = normal","Humo fuerte ⚠ = desgaste interno","Bota aceite ⚠⚠ = overhaul urgente"],"Este es el indicador más honesto del estado del motor."),
+  buildOpt("m_presion","Presión de aceite (indicador en tablero)",["Normal — en verde","Baja ⚠"]),
+  buildOpt("m_turbo","Estado del turbo",["Bueno / sin huelgo","Regular","Con huelgo o roto ⚠"],"Gira el turbo con la mano (frío). Si tiene mucho juego lateral, está gastado."),
+  buildOpt("m_radiador","Radiador",["Bueno / sin fugas","Aplastado o sucio","Con fugas ⚠"]),
+  buildOpt("m_filtros","Filtros (aire, aceite, combustible)",["Nuevos o en buen estado","Usados — normales","Saturados / sucios ⚠"]),
+  buildOpt("m_overhaul","¿Tuvo overhaul previo?",["Sí — con documentos","No","Desconocido"]),
+].join("");
+
+document.getElementById("sec-4").querySelector("#hidro-items").innerHTML=[
+  buildOpt("h_bombas","Bombas hidráulicas",["Buenas / presión normal","Regulares / presión baja","Malas ⚠"]),
+  buildOpt("h_mang","Mangueras hidráulicas",["En buen estado","Algunas agrietadas","Con fugas o rotas ⚠"]),
+  buildOpt("h_cilin","Cilindros hidráulicos",["Sin fugas visibles","Fuga leve en sellos","Fuga grave ⚠"]),
+  buildOpt("h_mov","Movimientos de los implementos",["Suaves y rápidos","Lentos","Bruscos o irregulares ⚠"],"Prueba subir y bajar la cuchara o brazos varias veces."),
+  buildOpt("t_cambios","Cambios de marcha",["Suaves","Con golpes o tirones ⚠"]),
+  buildOpt("t_mfinales","Mandos finales",["Buenos — sin fuga","Goteo de aceite","Fuga importante ⚠ (muy caro)"],"Mira la parte trasera de las ruedas motoras o piñones."),
+  buildOpt("t_convert","Convertidor de torque",["Bueno","Regular","Con problemas ⚠"]),
+].join("");
+
+document.getElementById("sec-5").querySelector("#rodaje-items").innerHTML=[
+  buildOpt("ro_zapatas","Orugas — zapatas (vida estimada)",["90-100% — como nuevas","70-89%","50-69%","Menos de 50% ⚠ — costoso"],"Si la cadena cuelga mucho está al límite."),
+  buildOpt("ro_rodillos","Rodillos de oruga",["Buenos","Regulares — goteo de aceite","Malos / rotos ⚠"]),
+  buildOpt("ro_cadenas","Cadenas — desgaste general",["Poco desgaste","Desgaste medio","Muy desgastadas ⚠⚠"]),
+  buildOpt("ro_pinones","Piñones / rueda guía",["Buenos","Regulares","Muy desgastados ⚠"]),
+  buildOpt("ll_del","Llantas delanteras (% vida)",["100% — como nuevas","~75%","~50%","25% o menos ⚠"],"Si no aplica orugas, evalúa llantas."),
+  buildOpt("ll_post","Llantas posteriores (% vida)",["100%","~75%","~50%","25% o menos ⚠"]),
+  buildOpt("ll_cortes","Cortes o daños en laterales de llanta",["No hay","Daños menores","Cortes profundos ⚠"]),
+].join("");
+
+document.getElementById("sec-6").querySelector("#elec-items").innerHTML=[
+  buildOpt("e_alter","Alternador",["Bueno — carga la batería","No carga ⚠"]),
+  buildOpt("e_arran","Motor de arranque",["Bueno / arranca directo","Lento al arrancar","Malo ⚠"]),
+  buildOpt("e_bater","Baterías",["Buenas","Regulares / se descargan","Malas ⚠"]),
+  buildOpt("e_luces","Luces",["Todas operativas","Algunas sin funcionar","Sin luces"]),
+  buildOpt("e_ecm","ECM / módulo electrónico",["Presente y original","Presente, versión desconocida","Faltante ⚠⚠ (muy caro)"],"Sin el ECM la máquina vale mucho menos. Verifica físicamente."),
+  buildOpt("e_sensor","Sensores e instrumentos del tablero",["Todo funciona bien","Algunas fallas menores","Códigos de error activos ⚠"]),
+].join("");
+
+document.getElementById("sec-6").querySelector("#prueba-items").innerHTML=[
+  buildOpt("p_despla","La máquina se desplaza",["Sí, sin problema","Con limitaciones","No se desplaza ⚠"]),
+  buildOpt("p_fuerza","Fuerza de trabajo (levanta, empuja)",["Buena / normal","Regular / ha bajado","Baja ⚠"]),
+  buildOpt("p_temp","Temperatura del motor en operación",["Normal — no sube","Sube un poco","Se recalienta ⚠"]),
+  buildOpt("p_vibra","Vibraciones anormales",["No hay","Leves","Fuertes ⚠"]),
+  buildOpt("p_frenos","Frenos",["Buenos","Regulares","Malos ⚠"]),
+  buildOpt("p_direc","Dirección / giro",["Buena / suave","Regular / pesada","Mala ⚠"]),
+].join("");
+
+const compsList=["Turbo","ECM / módulo","Alternador","Arranque","Bomb. hidráulicas","Inyectores","Radiador","Compresor","Transmisión","Baterías"];
+document.getElementById("comp-checks").innerHTML=compsList.map((c,i)=>
+  `<div class="chk-item" id="chk-${i}" onclick="togChk(${i})"><div class="ci-box" id="cib-${i}"></div><span class="ci-lbl">${c}</span></div>`
+).join("");
+
+const navEl=document.getElementById("step-nav");
+stepNames.forEach((n,i)=>{
+  const b=document.createElement("button");
+  b.className="step-btn"+(i===0?" active":"");
+  b.textContent=(i+1)+". "+n;
+  b.onclick=()=>jumpStep(i);
+  b.id="snb-"+i;
+  navEl.appendChild(b);
+});
+
+function tog(el,g){
+  const prev=document.querySelector(`.opt.sel[data-g="${g}"]`);
+  if(prev&&prev!==el){prev.classList.remove("sel");prev.removeAttribute("data-g");}
+  el.classList.toggle("sel");
+  if(el.classList.contains("sel"))el.setAttribute("data-g",g);
+  else el.removeAttribute("data-g");
+}
+function togM(el){el.classList.toggle("sel");}
+function togChk(i){document.getElementById("chk-"+i).classList.toggle("checked");}
+
+function calcPrecio(){
+  const p=parseFloat(document.getElementById("c_pedido").value)||0;
+  const m=parseFloat(document.getElementById("c_mercado").value)||0;
+  const el=document.getElementById("precio-alerta");
+  if(!p||!m){el.innerHTML="";return;}
+  const diff=Math.round(((p-m)/m)*100);
+  let cls,msg;
+  if(diff>15){cls="verdict v-no";msg=`Precio ${diff}% sobre el mercado — negocia fuerte o busca otra opción.`;}
+  else if(diff>5){cls="verdict v-neg";msg=`Precio ${diff}% sobre mercado — hay margen para negociar.`;}
+  else if(diff<-10){cls="verdict v-buy";msg=`Precio ${Math.abs(diff)}% bajo el mercado — buena oportunidad si el estado lo justifica.`;}
+  else{cls="verdict v-neg";msg=`Precio dentro del rango de mercado (${diff>0?"+":""}${diff}%).`;}
+  el.innerHTML=`<div class="${cls}" style="margin-bottom:12px">${msg}</div>`;
+}
+
+function calcCosto(){
+  const ids=["r_motor","r_hidro","r_trans","r_elec","r_rodaje","r_flete"];
+  const total=ids.reduce((s,id)=>s+(parseFloat(document.getElementById(id).value)||0),0);
+  document.getElementById("costo-total").textContent="USD "+total.toLocaleString();
+}
+
+function calcFinal(){
+  const p=parseFloat(document.getElementById("rv_pedido").value)||0;
+  const m=parseFloat(document.getElementById("rv_mercado").value)||0;
+  const inv=parseFloat(document.getElementById("rv_inversion").value)||0;
+  const fc=document.getElementById("final-calc");
+  if(!p&&!m){fc.style.display="none";return;}
+  fc.style.display="block";
+  const costoReal=p+inv;
+  const ofertaMax=Math.max(0,m-inv);
+  const margen=m>0?Math.round(ofertaMax-costoReal):0;
+  document.getElementById("fc-costo").textContent="USD "+Math.round(costoReal).toLocaleString();
+  document.getElementById("fc-oferta").textContent="USD "+Math.round(ofertaMax).toLocaleString();
+  document.getElementById("fc-margen").textContent=(margen>=0?"+ ":"- ")+"USD "+Math.abs(margen).toLocaleString();
+  document.getElementById("fc-margen").style.color=margen>=0?"#2d9e6b":"#c0392b";
+}
+
+function updateScore(){
+  const allKeys=["v_pintura","v_golpes","v_aceite","v_hidro","v_sold","v_chasis","v_oxid","v_cables","v_cabina",
+    "m_arranca","m_frio","m_hnegro","m_hazul","m_hblanc","m_ruidos","m_blowby","m_presion","m_turbo","m_radiador","m_filtros",
+    "h_bombas","h_mang","h_cilin","h_mov","t_cambios","t_mfinales","t_convert",
+    "ro_zapatas","ro_rodillos","ro_cadenas","ro_pinones","ll_del","ll_post","ll_cortes",
+    "e_alter","e_arran","e_bater","e_luces","e_ecm","e_sensor",
+    "p_despla","p_fuerza","p_temp","p_vibra","p_frenos","p_direc"];
+
+  let total=0,count=0;
+  allKeys.forEach(k=>{
+    const sel=document.querySelector(`.opt.sel[data-g="${k}"]`);
+    if(sel){
+      const opts=[...sel.parentElement.children];
+      const idx=opts.indexOf(sel);
+      const n=opts.length;
+      const score=Math.round(((n-1-idx)/(n-1))*5);
+      total+=score;count++;
+    }
+  });
+
+  if(count===0)return;
+  const avg=(total/count).toFixed(1);
+  const pct=Math.round((total/count)/5*100);
+  document.getElementById("res-tecnico").textContent=avg+"/5";
+  document.getElementById("res-porc").textContent=pct+"%";
+
+  const vEl=document.getElementById("res-verdict");
+  vEl.style.display="block";
+  if(pct>=80){vEl.className="verdict v-buy";vEl.textContent="Comprar — buen estado general";}
+  else if(pct>=60){vEl.className="verdict v-neg";vEl.textContent="Negociar precio — hay observaciones importantes";}
+  else if(pct>=40){vEl.className="verdict v-low";vEl.textContent="Solo si hay margen grande de ganancia";}
+  else{vEl.className="verdict v-no";vEl.textContent="No recomendable — estado deficiente";}
+}
+
+function goStep(dir){jumpStep(cur+dir);}
+function jumpStep(n){
+  if(n<0||n>=TOTAL)return;
+  document.getElementById("sec-"+cur).classList.remove("visible");
+  document.getElementById("snb-"+cur).className="step-btn done";
+  cur=n;
+  document.getElementById("sec-"+cur).classList.add("visible");
+  document.getElementById("snb-"+n).className="step-btn active";
+  document.getElementById("prog").style.width=Math.round(((n+1)/TOTAL)*100)+"%";
+  document.getElementById("step-label").textContent=`Paso ${n+1} de ${TOTAL} — ${stepNames[n]}`;
+  document.getElementById("btn-prev").style.display=n>0?"block":"none";
+  document.getElementById("btn-next").textContent=n<TOTAL-1?"Siguiente →":"Ver resultado";
+  document.getElementById("snb-"+n).scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  if(n===TOTAL-1)updateScore();
+}
+
+function enviarAnalisis(){
+  const marca=document.getElementById("g_marca").value||"sin especificar";
+  const modelo=document.getElementById("g_modelo").value||"";
+  const anio=document.getElementById("g_anio").value||"—";
+  const horas=document.getElementById("g_horas").value||"—";
+  const lugar=document.getElementById("g_lugar").value||"—";
+  const pedido=document.getElementById("rv_pedido").value||document.getElementById("c_pedido").value||"—";
+  const mercado=document.getElementById("rv_mercado").value||document.getElementById("c_mercado").value||"—";
+  const inversion=document.getElementById("rv_inversion").value||"—";
+  const score=document.getElementById("res-tecnico").textContent;
+  const porc=document.getElementById("res-porc").textContent;
+  const veredicto=document.getElementById("res-verdict").textContent||"pendiente";
+  const obs=document.getElementById("obs_final").value||"Ninguna";
+  const msg=`Acabo de completar la inspección de una ${marca} ${modelo} año ${anio} con ${horas} horas en ${lugar}. Puntaje técnico: ${score} (${porc}). Precio pedido: USD ${pedido}, valor de mercado: USD ${mercado}, inversión estimada en reparaciones: USD ${inversion}. Veredicto: ${veredicto}. Observaciones: ${obs}. ¿Me puedes hacer un análisis detallado: conviene comprarla, qué debo negociar con el vendedor y qué riesgos tengo?`;
+  sendPrompt(msg);
+}
+
+document.getElementById("g_fecha").value=new Date().toISOString().split("T")[0];
+</script>
